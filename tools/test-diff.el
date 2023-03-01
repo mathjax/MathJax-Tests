@@ -13,7 +13,7 @@
 (defun jest-find-fail ()
   ;; Returns start end for actual and expected and position of fail o/w nil.
   (interactive)
-  (block find-fail-block
+  (cl-block find-fail-block
     (let ((pos (condition-case nil
                    (search-forward "●" nil t)
                  (error nil))))
@@ -32,14 +32,17 @@
                        (goto-char actual)
                        (forward-line)
                        (search-forward "\"")))
-               (end1 (1- (search-forward "\"")))
+               (dummy1 (search-forward "\"\n"))
+               (end1 (1- (point)))
                (fail1 (buffer-substring beg1 end1))
                (beg2 (progn
                        (goto-char expected)
                        (forward-line)
                        (search-forward "\"")))
-               (end2 (1- (search-forward "\"")))
+               (dummy2 (search-forward "\"\n"))
+               (end2 (1- (point)))
                (fail2 (buffer-substring beg2 end2)))
+          (print (list (cons beg1 end1) (cons beg2 end2) pos (cons fail1 fail2)))
           (list (cons beg1 end1) (cons beg2 end2) pos (cons fail1 fail2))
           )))))
 
@@ -61,7 +64,7 @@
 
 (defun jest-replace-expected-for-actual ()
   (interactive)
-  (block expected-block
+  (cl-block expected-block
     (let* ((actual (jest-get-failed-testcase))
            (testcase (first actual))
            (expected (cdr (fifth actual)))
@@ -97,7 +100,7 @@
         ))))
 
 (defun jest-get-failed-testcase ()
-  (block fail-block
+  (cl-block fail-block
     (let ((fail (jest-find-fail)))
       (when (null fail) (return-from fail-block nil))
       (let* ((point1 (progn
@@ -136,7 +139,7 @@
 (defun find-fail ()
   ;; Returns start end for actual and expected and position of fail o/w nil.
   (interactive)
-  (block find-fail-block
+  (cl-block find-fail-block
     (let ((pos (condition-case nil
                    (search-forward "FAIL" nil t)
                  (error nil))))
@@ -184,7 +187,7 @@
 
 (defun replace-expected-for-actual ()
   (interactive)
-  (block expected-block
+  (cl-block expected-block
     (let ((actual (get-actual-for-fail)))
       (forward-line)
       (other-window 1)
@@ -207,7 +210,7 @@
           )))))
 
 (defun get-actual-for-fail ()
-  (block fail-block
+  (cl-block fail-block
     (let ((fail (find-fail)))
       (when (null fail) (return-from fail-block nil))
       (let* ((point1 (progn
